@@ -27,7 +27,7 @@ trait MinimalMatrix {
       * If {{ts.size > M * N}} the elements in excess are discarded
       * If {{ts.size < M * N}} the missing elements are filled with zero
       */
-    def create[M <: Dim : ValueOf, N <: Dim : ValueOf](ts: Seq[T]): Matrix[T, M, N]
+    def create[M <: Dim : ValueOf, N <: Dim : ValueOf](ts: T*): Matrix[T, M, N]
 
     def plus[M <: Dim : ValueOf, N <: Dim : ValueOf](m1: Matrix[T, M, N], m2: Matrix[T, M, N]): Matrix[T, M, N]
 

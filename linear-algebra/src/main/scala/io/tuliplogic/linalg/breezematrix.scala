@@ -10,7 +10,7 @@ import scala.reflect.ClassTag
 
 object breezematrix extends MinimalMatrix {
 
-  class BreezeMatrix[T, M <: Dim : ValueOf, N <: Dim : ValueOf](val backing: DenseMatrix[T]) {
+  class BreezeMatrix[T, M <: Dim : ValueOf, N <: Dim : ValueOf](private[linalg] val backing: DenseMatrix[T]) {
     override def toString() = backing.toString()
   }
 
@@ -41,7 +41,7 @@ object breezematrix extends MinimalMatrix {
       * If {{ts.size > M * N}} the elements in excess are discarded
       * If {{ts.size < M * N}} the missing elements are filled with zero
       */
-    override def create[M <: Dim : ValueOf, N <: Dim : ValueOf](ts: Seq[T]): Matrix[T, M, N] =
+    override def create[M <: Dim : ValueOf, N <: Dim : ValueOf](ts: T*): Matrix[T, M, N] =
       new BreezeMatrix[T, M, N](DenseMatrix.create(valueOf[M], valueOf[N], ts.toArray))
 
     override def plus[M <: Dim : ValueOf, N <: Dim : ValueOf](m1: Matrix[T, M, N], m2: Matrix[T, M, N]): Matrix[T, M, N] =
@@ -67,9 +67,8 @@ object breezematrix extends MinimalMatrix {
     override def value(m: Matrix[T, 1, 1]): T = m.backing.valueAt(0)
   }
 
-  import breeze.linalg._
-  val doubleMatrixAlgebra = matrixAlgebra[Double]
-  val bigDecimalAlgebra = matrixAlgebra[BigDecimal]
+  val doubleMatrixAlgebra: breezematrix.MatrixAlgebra[Double] = matrixAlgebra[Double]
+  val bigDecimalAlgebra: breezematrix.MatrixAlgebra[BigDecimal] = matrixAlgebra[BigDecimal]
 
 }
 
