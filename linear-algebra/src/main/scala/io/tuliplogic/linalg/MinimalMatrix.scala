@@ -1,13 +1,16 @@
 package io.tuliplogic.linalg
 
-import breeze.math.Field
+import cats.kernel.Eq
 import singleton.ops._
-
 
 trait MinimalMatrix {
 
   type Dim = XInt
 
+  /**
+    * A matrix with M rows and N cols
+    * No assumption is made on the T type, although for most of matrix operations it will be required to be a Field
+    */
   type Matrix[T, M <: Dim, N <: Dim]
 
   trait MatrixAlgebra[T] {
@@ -38,17 +41,33 @@ trait MinimalMatrix {
     def times[M <: Dim : ValueOf, N <: Dim : ValueOf, P <: Dim : ValueOf]
       (m1: Matrix[T, M, N], m2: Matrix[T, N, P]): Matrix[T, M, P]
 
-    def row[M <: Dim : ValueOf, N <: Dim : ValueOf, Row <: Dim : ValueOf](m1: Matrix[T, M, N])(m: Row)
+    def getRow[M <: Dim : ValueOf, N <: Dim : ValueOf, Row <: Dim : ValueOf](m1: Matrix[T, M, N])(m: Row)
       (implicit lteq: Require[Row < M]): RowVector[N]
 
-    def col[M <: Dim : ValueOf, N <: Dim : ValueOf, Col <: Dim : ValueOf](m1: Matrix[T, M, N])(n: Col)
+    def getCol[M <: Dim : ValueOf, N <: Dim : ValueOf, Col <: Dim : ValueOf](m1: Matrix[T, M, N])(n: Col)
       (implicit lteq: Require[Col < N]): ColVector[M]
 
     def value(m: Matrix[T, 1, 1]): T
 
+    def values[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Matrix[T, M, N]): List[T]
+
+    def get[M <: Dim : ValueOf, N <: Dim : ValueOf, I <: Dim : ValueOf, J <: Dim : ValueOf](m: Matrix[T, M, N])(i: I, j: J)
+      (implicit lteqRow: Require[I < M], lteqCol: Require[J < N]): T = {
+      val iThRow: RowVector[N] = getRow(m)(i)
+      val jThCol: ColVector[1] = getCol[1, N, J](iThRow)(j)
+      value(jThCol)
+    }
+
   }
 
   object syntax {
+    import cats.implicits._
+
+    implicit def matrixEq[T: Eq, M <: Dim : ValueOf, N <: Dim : ValueOf](implicit alg: MatrixAlgebra[T]): Eq[Matrix[T, M, N]] =
+      new Eq[Matrix[T, M, N]] {
+        override def eqv(x: Matrix[T, M, N], y: Matrix[T, M, N]): Boolean =
+          alg.values(x) === alg.values(y)
+      }
 
     implicit class RichMatrix[T, M <: Dim : ValueOf, N <: Dim : ValueOf](m: Matrix[T, M, N])
       (implicit val alg: MatrixAlgebra[T]) {
@@ -65,7 +84,7 @@ trait MinimalMatrix {
         alg.scale(α)(m)
 
       def row[Row <: Dim : ValueOf](row: Row)(implicit lteq: Require[Row < M]): alg.RowVector[N] =
-        alg.row(m)(row)
+        alg.getRow(m)(row)
     }
 
     implicit class RichSingletonMatrix[T](m: Matrix[T, 1, 1])
