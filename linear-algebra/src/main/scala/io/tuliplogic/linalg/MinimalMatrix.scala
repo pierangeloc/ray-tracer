@@ -31,6 +31,8 @@ trait MinimalMatrix {
       * If {{ts.size < M * N}} the missing elements are filled with zero
       */
     def create[M <: Dim : ValueOf, N <: Dim : ValueOf](ts: T*): Matrix[T, M, N]
+    def createRow[N <: Dim : ValueOf](ts: T*): Matrix[T, 1, N] = create[1, N](ts: _*)
+    def createCol[M <: Dim : ValueOf](ts: T*): Matrix[T, M, 1] = create[M, 1](ts: _*)
 
     def plus[M <: Dim : ValueOf, N <: Dim : ValueOf](m1: Matrix[T, M, N], m2: Matrix[T, M, N]): Matrix[T, M, N]
 
@@ -47,6 +49,8 @@ trait MinimalMatrix {
     def getCol[M <: Dim : ValueOf, N <: Dim : ValueOf, Col <: Dim : ValueOf](m1: Matrix[T, M, N])(n: Col)
       (implicit lteq: Require[Col < N]): ColVector[M]
 
+    def transpose[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Matrix[T, M, N]): Matrix[T, N, M]
+
     def value(m: Matrix[T, 1, 1]): T
 
     def values[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Matrix[T, M, N]): List[T]
@@ -58,6 +62,9 @@ trait MinimalMatrix {
       value(jThCol)
     }
 
+    def dot[M <: Dim : ValueOf](v: ColVector[M], w: ColVector[M]): T = value(times(transpose(v), w))
+
+    def cross(v: ColVector[3], w: ColVector[3]): ColVector[3]
   }
 
   object syntax {

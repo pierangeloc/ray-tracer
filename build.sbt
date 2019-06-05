@@ -82,7 +82,8 @@ lazy val `linear-algebra` = project
           breezeNative,
           singletonOps,
           cats,
-          scalaTest % Test
+          scalaTest % Test,
+          catsTestKit % Test
       )
     )
 

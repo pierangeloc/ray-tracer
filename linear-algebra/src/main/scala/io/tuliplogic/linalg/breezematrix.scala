@@ -64,9 +64,25 @@ object breezematrix extends MinimalMatrix {
       (implicit lteq: Require[Col < N]): ColVector[M] =
       new Mat[T, M, 1](m1.backing(0 until valueOf[M], n).toDenseMatrix)
 
+    override def transpose[M <: breezematrix.Dim : ValueOf, N <: breezematrix.Dim : ValueOf](m: Matrix[T, M, N]): Mat[T, N, M] =
+      new Mat[T, N, M](m.backing.t)
+
     override def value(m: Matrix[T, 1, 1]): T = m.backing.valueAt(0)
 
-    override def values[M <: breezematrix.Dim : ValueOf, N <: breezematrix.Dim : ValueOf](m: Mat[T, M, N]): List[T] = m.backing.t.data.toList
+    override def values[M <: breezematrix.Dim : ValueOf, N <: breezematrix.Dim : ValueOf](m: Mat[T, M, N]): List[T] = m.backing.valuesIterator.toList
+
+    override def cross(v: ColVector[3], w: ColVector[3]): ColVector[3] = {
+      import breeze.linalg._
+
+      val List(v_x, v_y, v_z) = values(v)
+      val List(w_x, w_y, w_z) = values(w)
+      create[3, 1](
+        v_y * w_z - v_z * w_y,
+        v_z * w_x - v_x * w_z,
+        v_x * w_y - v_y * w_x
+      )
+
+    }
   }
 
   implicit val doubleMatrixAlgebra: breezematrix.MatrixAlgebra[Double] = matrixAlgebra[Double]
