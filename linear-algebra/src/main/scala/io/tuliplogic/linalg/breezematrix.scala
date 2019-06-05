@@ -2,6 +2,8 @@ package io.tuliplogic.linalg
 
 import breeze.linalg.DenseMatrix
 import breeze.linalg.operators.{OpAdd, OpMulMatrix, OpMulScalar}
+import breeze.linalg._
+import breeze.linalg.norm._
 import breeze.math.Field
 import breeze.storage.Zero
 import singleton.ops._
@@ -21,6 +23,7 @@ object breezematrix extends MinimalMatrix {
     implicit opAdd: OpAdd.Impl2[DenseMatrix[T], DenseMatrix[T],DenseMatrix[T]],
     opMulScalar: OpMulScalar.Impl2[DenseMatrix[T], T, DenseMatrix[T]],
     opMul: OpMulMatrix.Impl2[DenseMatrix[T], DenseMatrix[T], DenseMatrix[T]],
+    ev: norm.Impl[DenseMatrix[T], T],
     fe: Field[T]
   ): breezematrix.MatrixAlgebra[T] = new breezematrix.MatrixAlgebra[T] {
 
@@ -71,6 +74,7 @@ object breezematrix extends MinimalMatrix {
 
     override def values[M <: breezematrix.Dim : ValueOf, N <: breezematrix.Dim : ValueOf](m: Mat[T, M, N]): List[T] = m.backing.valuesIterator.toList
 
+    //(column) vector operations
     override def cross(v: ColVector[3], w: ColVector[3]): ColVector[3] = {
       import breeze.linalg._
 
@@ -81,8 +85,11 @@ object breezematrix extends MinimalMatrix {
         v_z * w_x - v_x * w_z,
         v_x * w_y - v_y * w_x
       )
-
     }
+
+    override def norm[M <: breezematrix.Dim : ValueOf](v: ColVector[M]): T = breeze.linalg.norm(v.backing)
+
+    override def normalize[M <: breezematrix.Dim : ValueOf]: T = ???
   }
 
   implicit val doubleMatrixAlgebra: breezematrix.MatrixAlgebra[Double] = matrixAlgebra[Double]

@@ -62,9 +62,13 @@ trait MinimalMatrix {
       value(jThCol)
     }
 
+    //vector operations
     def dot[M <: Dim : ValueOf](v: ColVector[M], w: ColVector[M]): T = value(times(transpose(v), w))
 
     def cross(v: ColVector[3], w: ColVector[3]): ColVector[3]
+
+    def norm[M <: Dim : ValueOf](v: ColVector[M]): T
+    def normalize[M <: Dim : ValueOf]: T
   }
 
   object syntax {

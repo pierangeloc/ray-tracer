@@ -65,7 +65,12 @@ lazy val commonSettings = inThisBuild(
       scalacOptions ++= Seq(
           "-Yliteral-types",
       ),
-
+      libraryDependencies ++= Seq(
+          zio,
+          cats,
+          scalaTest % Test,
+          catsTestKit % Test
+      ),
       addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.4"),
       addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.0-M4")
     )
@@ -77,15 +82,20 @@ lazy val `linear-algebra` = project
   .settings(
       name := "linear-algebra",
       libraryDependencies ++= Seq(
-          zio,
           breeze excludeAll ExclusionRule("org.spire-math"),
           breezeNative,
           singletonOps,
-          cats,
-          scalaTest % Test,
-          catsTestKit % Test
-      )
+        )
     )
+
+lazy val zibaldone = project
+  .in(file("zibaldone"))
+  .settings(commonSettings)
+  .settings(
+      name := "zibaldone",
+      libraryDependencies ++= Seq()
+  )
+  .dependsOn(`linear-algebra`)
 
 lazy val root = project
   .in(file("."))
