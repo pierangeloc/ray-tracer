@@ -38,7 +38,7 @@ trait MinimalMatrix {
 
     def negate[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Matrix[T, M, N]): Matrix[T, M, N]
 
-    def scale[M <: Dim : ValueOf, N <: Dim : ValueOf](α: T)(m: Matrix[T, M, N]): Matrix[T, M, N]
+    def timesScalar[M <: Dim : ValueOf, N <: Dim : ValueOf](α: T)(m: Matrix[T, M, N]): Matrix[T, M, N]
 
     def times[M <: Dim : ValueOf, N <: Dim : ValueOf, P <: Dim : ValueOf]
       (m1: Matrix[T, M, N], m2: Matrix[T, N, P]): Matrix[T, M, P]
@@ -62,13 +62,17 @@ trait MinimalMatrix {
       value(jThCol)
     }
 
+    def elem[M <: Dim : ValueOf, I <: Dim : ValueOf](v: ColVector[M])(i: I)
+      (implicit lteqRow: Require[I < M]): T = get[M, 1, I, 0](v)(i, 0)
+
     //vector operations
     def dot[M <: Dim : ValueOf](v: ColVector[M], w: ColVector[M]): T = value(times(transpose(v), w))
 
     def cross(v: ColVector[3], w: ColVector[3]): ColVector[3]
 
-    def norm[M <: Dim : ValueOf](v: ColVector[M]): T
-    def normalize[M <: Dim : ValueOf]: T
+    def norm[M <: Dim : ValueOf](v: ColVector[M]): Double
+    def scale[M <: Dim : ValueOf](α: Double)(v: ColVector[M]): ColVector[M]
+    def normalize[M <: breezematrix.Dim : ValueOf](v: ColVector[M]): ColVector[M] = scale(1 / norm(v))(v)
   }
 
   object syntax {
@@ -92,7 +96,7 @@ trait MinimalMatrix {
         alg.negate(m)
 
       def *(α: T): Matrix[T, M, N] =
-        alg.scale(α)(m)
+        alg.timesScalar(α)(m)
 
       def row[Row <: Dim : ValueOf](row: Row)(implicit lteq: Require[Row < M]): alg.RowVector[N] =
         alg.getRow(m)(row)
@@ -106,7 +110,7 @@ trait MinimalMatrix {
     implicit class RichScalar[T, M <: Dim : ValueOf, N <: Dim : ValueOf](α: T)
       (implicit alg: MatrixAlgebra[T]) {
       def *(m: Matrix[T, M, N]): Matrix[T, M, N] =
-        alg.scale(α)(m)
+        alg.timesScalar(α)(m)
     }
 
   }

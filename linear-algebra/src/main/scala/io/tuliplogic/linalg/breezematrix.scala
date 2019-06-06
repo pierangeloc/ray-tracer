@@ -22,8 +22,8 @@ object breezematrix extends MinimalMatrix {
   def matrixAlgebra[T: Zero : ClassTag](
     implicit opAdd: OpAdd.Impl2[DenseMatrix[T], DenseMatrix[T],DenseMatrix[T]],
     opMulScalar: OpMulScalar.Impl2[DenseMatrix[T], T, DenseMatrix[T]],
+    opMulScalarDouble: OpMulScalar.Impl2[DenseMatrix[T], Double, DenseMatrix[T]],
     opMul: OpMulMatrix.Impl2[DenseMatrix[T], DenseMatrix[T], DenseMatrix[T]],
-    ev: norm.Impl[DenseMatrix[T], T],
     fe: Field[T]
   ): breezematrix.MatrixAlgebra[T] = new breezematrix.MatrixAlgebra[T] {
 
@@ -53,8 +53,10 @@ object breezematrix extends MinimalMatrix {
     override def negate[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Matrix[T, M, N]): Matrix[T, M, N] =
       new Mat[T, M, N](-m.backing)
 
-    override def scale[M <: Dim : ValueOf, N <: Dim : ValueOf](α: T)(m: Matrix[T, M, N]): Matrix[T, M, N] =
+    override def timesScalar[M <: Dim : ValueOf, N <: Dim : ValueOf](α: T)(m: Matrix[T, M, N]): Matrix[T, M, N] =
       new Mat[T, M, N](m.backing *:* α)
+
+    override def scale[M <: breezematrix.Dim : ValueOf](α: Double)(v: ColVector[M]): ColVector[M] = new Mat[T, M, 1](v.backing *:* α)
 
     override def times[M <: Dim : ValueOf, N <: Dim : ValueOf, P <: Dim : ValueOf](m1: Matrix[T, M, N], m2: Matrix[T, N, P]): Matrix[T, M, P] =
       new Mat[T, M, P](m1.backing * m2.backing)
@@ -87,13 +89,11 @@ object breezematrix extends MinimalMatrix {
       )
     }
 
-    override def norm[M <: breezematrix.Dim : ValueOf](v: ColVector[M]): T = breeze.linalg.norm(v.backing)
-
-    override def normalize[M <: breezematrix.Dim : ValueOf]: T = ???
+    override def norm[M <: breezematrix.Dim : ValueOf](v: ColVector[M]): Double = breeze.linalg.norm(v.backing.toDenseVector)
   }
 
   implicit val doubleMatrixAlgebra: breezematrix.MatrixAlgebra[Double] = matrixAlgebra[Double]
-  implicit val bigDecimalAlgebra: breezematrix.MatrixAlgebra[BigDecimal] = matrixAlgebra[BigDecimal]
+//  implicit val bigDecimalAlgebra: breezematrix.MatrixAlgebra[BigDecimal] = matrixAlgebra[BigDecimal]
 
 }
 

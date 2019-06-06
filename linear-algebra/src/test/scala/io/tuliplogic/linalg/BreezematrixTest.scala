@@ -55,7 +55,7 @@ class BreezematrixTest extends WordSpec with Inspectors with Matchers with cats.
 
     "multiply matrix by a scalar" in {
       val m = alg.ones[3, 4]
-      forAll(alg.values(alg.scale(10)(m)))(_ == 10)
+      forAll(alg.values(alg.timesScalar(10)(m)))(_ == 10)
     }
 
     "multiply correctly two matrices" in {

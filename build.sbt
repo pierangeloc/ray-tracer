@@ -93,7 +93,7 @@ lazy val zibaldone = project
   .settings(commonSettings)
   .settings(
       name := "zibaldone",
-      libraryDependencies ++= Seq()
+      libraryDependencies ++= Seq(zioStreams)
   )
   .dependsOn(`linear-algebra`)
 
