@@ -13,5 +13,7 @@ object Dependencies {
   lazy val scalaTest    = "org.scalatest" %% "scalatest"          % "3.0.5"
   lazy val catsTestKit  = "org.typelevel" %% "cats-testkit"       % "1.6.1"
 
+  lazy val refined      = "eu.timepit"    %% "refined"            % "0.9.7"
+  lazy val refinedCats  = "eu.timepit"    %% "refined-cats"       % "0.9.7"
 
 }

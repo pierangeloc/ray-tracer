@@ -13,18 +13,11 @@ trait MinimalMatrix {
     */
   type Matrix[T, M <: Dim, N <: Dim]
 
-  trait MatrixAlgebra[T] {
-
+  trait MatrixAsBoxAlgebra[T] {
     type RowVector[N <: Dim] = Matrix[T, 1, N]
     type ColVector[M <: Dim] = Matrix[T, M, 1]
-
-    def zero[M <: Dim : ValueOf, N <: Dim : ValueOf]: Matrix[T, M, N]
-
-    def ones[M <: Dim : ValueOf, N <: Dim : ValueOf]: Matrix[T, M, N]
-
     def col[M <: Dim : ValueOf](ts: Seq[T]): ColVector[M]
     def row[N <: Dim : ValueOf](ts: Seq[T]): RowVector[N]
-
     /**
       * Create a matrix populating it with the elements from the provided sequence, row by row.
       * If {{ts.size > M * N}} the elements in excess are discarded
@@ -33,15 +26,7 @@ trait MinimalMatrix {
     def create[M <: Dim : ValueOf, N <: Dim : ValueOf](ts: T*): Matrix[T, M, N]
     def createRow[N <: Dim : ValueOf](ts: T*): Matrix[T, 1, N] = create[1, N](ts: _*)
     def createCol[M <: Dim : ValueOf](ts: T*): Matrix[T, M, 1] = create[M, 1](ts: _*)
-
-    def plus[M <: Dim : ValueOf, N <: Dim : ValueOf](m1: Matrix[T, M, N], m2: Matrix[T, M, N]): Matrix[T, M, N]
-
-    def negate[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Matrix[T, M, N]): Matrix[T, M, N]
-
-    def timesScalar[M <: Dim : ValueOf, N <: Dim : ValueOf](α: T)(m: Matrix[T, M, N]): Matrix[T, M, N]
-
-    def times[M <: Dim : ValueOf, N <: Dim : ValueOf, P <: Dim : ValueOf]
-      (m1: Matrix[T, M, N], m2: Matrix[T, N, P]): Matrix[T, M, P]
+    def fill[M <: Dim : ValueOf, N <: Dim : ValueOf](t: T): Matrix[T, M, N]
 
     def getRow[M <: Dim : ValueOf, N <: Dim : ValueOf, Row <: Dim : ValueOf](m1: Matrix[T, M, N])(m: Row)
       (implicit lteq: Require[Row < M]): RowVector[N]
@@ -65,6 +50,26 @@ trait MinimalMatrix {
     def elem[M <: Dim : ValueOf, I <: Dim : ValueOf](v: ColVector[M])(i: I)
       (implicit lteqRow: Require[I < M]): T = get[M, 1, I, 0](v)(i, 0)
 
+  }
+
+  trait MatrixAlgebra[T] extends MatrixAsBoxAlgebra[T] {
+
+    def zero[M <: Dim : ValueOf, N <: Dim : ValueOf]: Matrix[T, M, N]
+
+    def ones[M <: Dim : ValueOf, N <: Dim : ValueOf]: Matrix[T, M, N]
+
+    def identity[M <: Dim : ValueOf]: Matrix[T, M, M]
+
+    def plus[M <: Dim : ValueOf, N <: Dim : ValueOf](m1: Matrix[T, M, N], m2: Matrix[T, M, N]): Matrix[T, M, N]
+
+    def negate[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Matrix[T, M, N]): Matrix[T, M, N]
+
+    def timesScalar[M <: Dim : ValueOf, N <: Dim : ValueOf](α: T)(m: Matrix[T, M, N]): Matrix[T, M, N]
+
+    def times[M <: Dim : ValueOf, N <: Dim : ValueOf, P <: Dim : ValueOf]
+      (m1: Matrix[T, M, N], m2: Matrix[T, N, P]): Matrix[T, M, P]
+
+
     //vector operations
     def dot[M <: Dim : ValueOf](v: ColVector[M], w: ColVector[M]): T = value(times(transpose(v), w))
 
@@ -72,7 +77,7 @@ trait MinimalMatrix {
 
     def norm[M <: Dim : ValueOf](v: ColVector[M]): Double
     def scale[M <: Dim : ValueOf](α: Double)(v: ColVector[M]): ColVector[M]
-    def normalize[M <: breezematrix.Dim : ValueOf](v: ColVector[M]): ColVector[M] = scale(1 / norm(v))(v)
+    def normalize[M <: Dim : ValueOf](v: ColVector[M]): ColVector[M] = scale(1 / norm(v))(v)
   }
 
   object syntax {
@@ -116,6 +121,8 @@ trait MinimalMatrix {
   }
 
 }
+
+object MinimalMatrix extends MinimalMatrix
 
 
 

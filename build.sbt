@@ -97,6 +97,20 @@ lazy val zibaldone = project
   )
   .dependsOn(`linear-algebra`)
 
+lazy val drawing = project
+  .in(file("drawing"))
+  .settings(commonSettings)
+  .settings(
+      name := "drawing",
+      libraryDependencies ++= Seq(
+        cats,
+        refined,
+        refinedCats
+      )
+  )
+  .dependsOn(`linear-algebra`)
+
+
 lazy val root = project
   .in(file("."))
   .settings(commonSettings)
