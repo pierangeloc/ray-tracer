@@ -11,7 +11,6 @@ import singleton.ops._
 import scala.reflect.ClassTag
 
 object breezematrix extends MinimalMatrix {
-
   class Mat[T, M <: Dim : ValueOf, N <: Dim : ValueOf](private[linalg] val backing: DenseMatrix[T]) {
     override def toString() = backing.toString()
   }
@@ -46,12 +45,12 @@ object breezematrix extends MinimalMatrix {
       (implicit lteq: Require[Col < N]): ColVector[M] =
       new Mat[T, M, 1](m1.backing(0 until valueOf[M], n).toDenseMatrix)
 
-    override def transpose[M <: breezematrix.Dim : ValueOf, N <: breezematrix.Dim : ValueOf](m: Matrix[T, M, N]): Mat[T, N, M] =
+    override def transpose[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Matrix[T, M, N]): Mat[T, N, M] =
       new Mat[T, N, M](m.backing.t)
 
     override def value(m: Matrix[T, 1, 1]): T = m.backing.valueAt(0)
 
-    override def values[M <: breezematrix.Dim : ValueOf, N <: breezematrix.Dim : ValueOf](m: Mat[T, M, N]): List[T] = m.backing.valuesIterator.toList
+    override def values[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Mat[T, M, N]): List[T] = m.backing.valuesIterator.toList
 
 
     override def zero[M <: Dim : ValueOf, N <: Dim : ValueOf]: Matrix[T, M, N] =
@@ -79,7 +78,7 @@ object breezematrix extends MinimalMatrix {
     override def timesScalar[M <: Dim : ValueOf, N <: Dim : ValueOf](α: T)(m: Matrix[T, M, N]): Matrix[T, M, N] =
       new Mat[T, M, N](m.backing *:* α)
 
-    override def scale[M <: breezematrix.Dim : ValueOf](α: Double)(v: ColVector[M]): ColVector[M] = new Mat[T, M, 1](v.backing *:* α)
+    override def scale[M <: Dim : ValueOf](α: Double)(v: ColVector[M]): ColVector[M] = new Mat[T, M, 1](v.backing *:* α)
 
     override def times[M <: Dim : ValueOf, N <: Dim : ValueOf, P <: Dim : ValueOf](m1: Matrix[T, M, N], m2: Matrix[T, N, P]): Matrix[T, M, P] =
       new Mat[T, M, P](m1.backing * m2.backing)
@@ -98,7 +97,7 @@ object breezematrix extends MinimalMatrix {
       )
     }
 
-    override def norm[M <: breezematrix.Dim : ValueOf](v: ColVector[M]): Double = breeze.linalg.norm(v.backing.toDenseVector)
+    override def norm[M <: Dim : ValueOf](v: ColVector[M]): Double = breeze.linalg.norm(v.backing.toDenseVector)
   }
 
   implicit val doubleMatrixAlgebra: breezematrix.MatrixAlgebra[Double] = matrixAlgebra[Double]

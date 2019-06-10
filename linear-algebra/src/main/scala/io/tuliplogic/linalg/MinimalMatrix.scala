@@ -4,9 +4,6 @@ import cats.kernel.Eq
 import singleton.ops._
 
 trait MinimalMatrix {
-
-  type Dim = XInt
-
   /**
     * A matrix with M rows and N cols
     * No assumption is made on the T type, although for most of matrix operations it will be required to be a Field
@@ -122,7 +119,8 @@ trait MinimalMatrix {
 
 }
 
-object MinimalMatrix extends MinimalMatrix
+object MinimalMatrix extends MinimalMatrix {
+}
 
 
 
