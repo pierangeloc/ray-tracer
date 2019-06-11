@@ -47,6 +47,12 @@ trait MinimalMatrix {
     def elem[M <: Dim : ValueOf, I <: Dim : ValueOf](v: ColVector[M])(i: I)
       (implicit lteqRow: Require[I < M]): T = get[M, 1, I, 0](v)(i, 0)
 
+    /**
+      * In the pure FP spirit, this method doesn't update the existing matrix, it rather returns a new matrix with the updated element
+     */
+    def update[M <: Dim : ValueOf, N <: Dim : ValueOf, I <: Dim : ValueOf, J <: Dim : ValueOf](m: Matrix[T, M, N], i: I, j: J, v: T)
+      (implicit lteqRow: Require[I < M], lteqCol: Require[J < N]) : Matrix[T, M, N]
+
   }
 
   trait MatrixAlgebra[T] extends MatrixAsBoxAlgebra[T] {

@@ -51,6 +51,14 @@ object breezematrix extends MinimalMatrix {
     override def value(m: Matrix[T, 1, 1]): T = m.backing.valueAt(0)
 
     override def values[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Mat[T, M, N]): List[T] = m.backing.valuesIterator.toList
+    override def update[M <: Dim : ValueOf, N <: Dim : ValueOf, I <: Dim : ValueOf, J <: Dim : ValueOf]
+      (m: Matrix[T, M, N], i: I, j: J, v: T)
+      (implicit lteqRow: Require[I < M], lteqCol: Require[J < N]): Mat[T, M, N] = {
+      val copy = m.backing.copy
+      copy.update(i, j, v)
+      new Mat[T, M, N](copy)
+    }
+
 
 
     override def zero[M <: Dim : ValueOf, N <: Dim : ValueOf]: Matrix[T, M, N] =
