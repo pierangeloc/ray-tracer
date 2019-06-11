@@ -12,7 +12,7 @@ object colors {
 
   import breezematrix.{doubleMatrixAlgebra => alg}
   import alg._
-  import breezematrix.syntax._
+//  import breezematrix.syntax._
 
   case class RGB(red: Double , green: Double, blue: Double) {
     def toVector: ColVector[3] = alg.createCol[3](red, green, blue)
