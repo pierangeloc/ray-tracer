@@ -48,30 +48,29 @@ object breezematrix {
     override def value(m: Mat[T, 1, 1]): T = m.backing.valueAt(0)
 
     override def values[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Mat[T, M, N]): List[T] = m.backing.valuesIterator.toList
+
     override def update[M <: Dim : ValueOf, N <: Dim : ValueOf, I <: Dim : ValueOf, J <: Dim : ValueOf]
-      (m: Matrix[T, M, N], i: I, j: J, v: T)
+    (m: Mat[T, M, N], i: I, j: J, v: T)
       (implicit lteqRow: Require[I < M], lteqCol: Require[J < N]): Mat[T, M, N] = {
       val copy = m.backing.copy
       copy.update(i, j, v)
       new Mat[T, M, N](copy)
     }
 
-
-
     override def zero[M <: Dim : ValueOf, N <: Dim : ValueOf]: Mat[T, M, N] =
-    new Mat[T, M, N](DenseMatrix.zeros[T](valueOf[M], valueOf[N]))
+      new Mat[T, M, N](DenseMatrix.zeros[T](valueOf[M], valueOf[N]))
 
     def identity[M <: Dim : ValueOf]: Mat[T, M, M] =
-    new Mat[T, M, M](DenseMatrix.eye(valueOf[M]))
+      new Mat[T, M, M](DenseMatrix.eye(valueOf[M]))
 
     override def ones[M <: Dim : ValueOf, N <: Dim : ValueOf]: Mat[T, M, N] =
-    new Mat[T, M, N](DenseMatrix.ones[T](valueOf[M], valueOf[N]))
+      new Mat[T, M, N](DenseMatrix.ones[T](valueOf[M], valueOf[N]))
 
     override def col[M <: Dim : ValueOf](ts: Seq[T]): ColVector[M] =
-    new Mat[T, M, 1](DenseMatrix.create(valueOf[M], 1, ts.toArray))
+      new Mat[T, M, 1](DenseMatrix.create(valueOf[M], 1, ts.toArray))
 
     override def row[N <: Dim : ValueOf](ts: Seq[T]): RowVector[N] =
-    new Mat[T, 1, N](DenseMatrix.create(1, valueOf[N], ts.toArray))
+      new Mat[T, 1, N](DenseMatrix.create(1, valueOf[N], ts.toArray))
 
 
     override def plus[M <: Dim : ValueOf, N <: Dim : ValueOf](m1: Mat[T, M, N], m2: Mat[T, M, N]): Mat[T, M, N] =
@@ -106,10 +105,8 @@ object breezematrix {
   }
 
   implicit val doubleMatrixAlgebra: MatrixAlgebra[Mat, Double] = matrixAlgebra[Double]
-//  implicit val bigDecimalAlgebra: breezematrix.MatrixAlgebra[BigDecimal] = matrixAlgebra[BigDecimal]
 
 }
-
 
 
 

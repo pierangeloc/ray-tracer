@@ -22,6 +22,13 @@ class BreezematrixTest extends WordSpec with Inspectors with Matchers with cats.
       forAll(alg.values(ones))(_ == 1)
     }
 
+    "update a matrix cell" in {
+      val ones = alg.ones[2, 2]
+      val expected = alg.create[2, 2](1, 1, 1, 10)
+      val res = ones.update(1, 1)(10)
+      res =!= expected shouldEqual false
+    }
+
     "add 2 matrices" in {
       val m1 = alg.create[2, 2](
         1, 2,

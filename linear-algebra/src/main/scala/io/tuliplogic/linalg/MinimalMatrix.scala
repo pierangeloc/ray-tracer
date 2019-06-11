@@ -62,7 +62,7 @@ trait MatrixAlgebra[Matrix[_, _ <: Dim, _ <: Dim], T] extends MatrixBox[Matrix, 
   def timesScalar[M <: Dim : ValueOf, N <: Dim : ValueOf](α: T)(m: Matrix[T, M, N]): Matrix[T, M, N]
 
   def times[M <: Dim : ValueOf, N <: Dim : ValueOf, P <: Dim : ValueOf]
-    (m1: Matrix[T, M, N], m2: Matrix[T, N, P]): Matrix[T, M, P]
+  (m1: Matrix[T, M, N], m2: Matrix[T, N, P]): Matrix[T, M, P]
 
   //vector operations
   def dot[M <: Dim : ValueOf](v: ColVector[M], w: ColVector[M]): T = value(times(transpose(v), w))
@@ -74,6 +74,12 @@ trait MatrixAlgebra[Matrix[_, _ <: Dim, _ <: Dim], T] extends MatrixBox[Matrix, 
   def scale[M <: Dim : ValueOf](α: Double)(v: ColVector[M]): ColVector[M]
 
   def normalize[M <: Dim : ValueOf](v: ColVector[M]): ColVector[M] = scale(1 / norm(v))(v)
+
+  /**
+    * In the pure FP spirit, this method doesn't update the existing matrix, it rather returns a new matrix with the updated element
+    */
+  def update[M <: Dim : ValueOf, N <: Dim : ValueOf, I <: Dim : ValueOf, J <: Dim : ValueOf](m: Matrix[T, M, N], i: I, j: J, v: T)
+    (implicit lteqRow: Require[I < M], lteqCol: Require[J < N]) : Matrix[T, M, N]
 }
 
 trait MatrixOps[Matrix[_, _ <: Dim, _ <: Dim], T] {
@@ -82,8 +88,8 @@ trait MatrixOps[Matrix[_, _ <: Dim, _ <: Dim], T] {
 
   implicit def matrixEq[M <: Dim : ValueOf, N <: Dim : ValueOf]
   (implicit ev: Eq[T], alg: MatrixBox[Matrix, T]): Eq[Matrix[T, M, N]] = new Eq[Matrix[T, M, N]] {
-      override def eqv(x: Matrix[T, M, N], y: Matrix[T, M, N]): Boolean = alg.values(x) === alg.values(y)
-    }
+    override def eqv(x: Matrix[T, M, N], y: Matrix[T, M, N]): Boolean = alg.values(x) === alg.values(y)
+  }
 
   implicit class RichMatrix[M <: Dim : ValueOf, N <: Dim : ValueOf](m: Matrix[T, M, N])
     (implicit val alg: MatrixAlgebra[Matrix, T]) {
@@ -103,6 +109,9 @@ trait MatrixOps[Matrix[_, _ <: Dim, _ <: Dim], T] {
       alg.getRow(m)(row)
 
     def values: List[T] = alg.values(m)
+
+    def update[I <: Dim : ValueOf, J <: Dim : ValueOf](i: I, j: J)(v: T)
+      (implicit lteqRow: Require[I < M], lteqCol: Require[J < N]): Matrix[T, M, N] = alg.update(m, i, j, v)
   }
 
   implicit class RichColVector[M <: Dim : ValueOf](v: Matrix[T, M, 1])
@@ -132,7 +141,6 @@ object matrixSyntax {
   def apply[Matrix[_, _ <: Dim, _ <: Dim], T]: MatrixOps[Matrix, T] = new MatrixOps[Matrix, T] {}
 
 }
-
 
 
 
